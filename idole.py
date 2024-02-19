@@ -19,7 +19,7 @@ from selenium.common.exceptions import TimeoutException
 import json
 
 # cd /Users/tsutsumi/Python3/Scraping/idole
-# pyinstaller idole2.py --onefile
+# pyinstaller idole.py --onefile
 
 # JSONファイルからデータを読み込む
 with open('/Users/tsutsumi/Python3/Scraping/idole/token/token.json') as f:
