@@ -24,7 +24,7 @@ import json
 # JSONファイルからデータを読み込む
 with open('/Users/tsutsumi/Python3/Scraping/idole/token/token.json') as f:
     data = json.load(f)
-
+f.close()
 # 'dev'と'prd'の値を取得する
 dev_token = data['dev']
 prd_token = data['prd']
@@ -34,48 +34,41 @@ LINE_NOTIFY_API = 'https://notify-api.line.me/api/notify'
 LINE_NOTIFY_TOKEN = dev_token
 # 本番用 
 # LINE_NOTIFY_TOKEN = prd_token
-print(LINE_NOTIFY_TOKEN)
 
 login_url = 'https://tiget.net/users/sign_in'
 args = sys.argv
 # ファイル選択ダイアログの表示
-file_path = tkinter.filedialog.askopenfilename(initialdir="/Users/tsutsumi/Python3/Scraping/idole")
-# 引数で指定したファイル名
-# file_path = args[1]
-# ファイルを開いて読み込んでdataに格納
-f = open(file_path,'r')
-datalist = f.readlines()
-s = datalist[0].rstrip('\n')
-mail = s[s.find('】')+1:]
-s = datalist[1].rstrip('\n')
-password = s
-s = datalist[2].rstrip('\n')
-nickname = s
-s = datalist[3].rstrip('\n')
-oshi = int(datalist[3].rstrip('\n'))
-tel1 = datalist[4].rstrip('\n')
-tel2 = datalist[5].rstrip('\n')
-tel3 = datalist[6].rstrip('\n')
-yuubin = datalist[7].rstrip('\n')
-addless = datalist[8].rstrip('\n')
-name1 = datalist[9].rstrip('\n')
-name2 = datalist[10].rstrip('\n')
-home_url = datalist[11].rstrip('\n')
-array_index = int(datalist[12].rstrip('\n'))
-yyyy = int(datalist[13].rstrip('\n'))
-mm = int(datalist[14].rstrip('\n'))
-dd = int(datalist[15].rstrip('\n'))
-hh = int(datalist[16].rstrip('\n'))
-mi = int(datalist[17].rstrip('\n'))
-ss = int(datalist[18].rstrip('\n'))
-miriss = int(datalist[19].rstrip('\n'))
+file_path = tkinter.filedialog.askopenfilename(initialdir="/Users/tsutsumi/Python3/Scraping/idole/UserText")
+with open(file_path) as f:
+    data = json.load(f)
+f.close()
+mailaddless = data['mailaddless']
+password = data['password']
+nickname = data['nickname']
+oshi = int(data['oshi'])
+tel1 = data['tel1']
+tel2 = data['tel2']
+tel3 = data['tel3']
+postcode = data['postcode']
+addless = data['addless']
+firstName = data['firstName']
+lastName = data['lastName']
+home_url = data['home_url']
+array_index = int(data['array_index'])
+yyyy = data['yyyy']
+mm = data['mm']
+dd = data['dd']
+hh = data['hh']
+mi = data['mi']
+ss = data['ss']
+mSeconds = data['mSeconds']
 # クレカ決済
-iscardstr = str(datalist[20].rstrip('\n'))
+iscardstr = data['iscard']
 iscard = False
 if iscardstr.upper() == 'TRUE':
     iscard = True
 
-f.close()
+
 #python3.9.6 64bitで実行するとうまくいく
 # driver = webdriver.Chrome()
 options = Options()
@@ -119,7 +112,7 @@ driver.maximize_window()
 # ログインページ 　   
 driver.get(login_url) 
 # メールアドレス
-driver.find_element(By.ID, "user_email").send_keys(mail)
+driver.find_element(By.ID, "user_email").send_keys(mailaddless)
 # パスワード
 driver.find_element(By.ID, "user_password").send_keys(password)
 # ログインボタン
@@ -131,7 +124,7 @@ time.sleep(3)
 
 # 指定の時間まで待機
 # LINE通知する
-startDt = datetime.datetime(yyyy,mm,dd,hh,mi,ss,miriss)
+startDt = datetime.datetime(yyyy,mm,dd,hh,mi,ss,mSeconds)
 print(startDt)
 diff = startDt - datetime.datetime.now()
 def waitprogram():
