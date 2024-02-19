@@ -116,7 +116,7 @@ options.set_preference('--services.sync.prefs.sync.permissions.default.image',Fa
 
 driver = webdriver.Firefox(options=options)
 driver.maximize_window()
-# ログインページ    
+# ログインページ 　   
 driver.get(login_url) 
 # メールアドレス
 driver.find_element(By.ID, "user_email").send_keys(mail)
