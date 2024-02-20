@@ -255,7 +255,6 @@ def main():
     time.sleep(10)
     # ブラウザを終了する。
     driver.close()
-    sys.exit()
 
 def send_line_notify(notification_message):
     """
@@ -268,3 +267,4 @@ def send_line_notify(notification_message):
 if __name__ == "__main__":
     waitprogram()
     main()
+    sys.exit()
