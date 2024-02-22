@@ -31,9 +31,9 @@ prd_token = data['prd']
 
 LINE_NOTIFY_API = 'https://notify-api.line.me/api/notify'
 # テスト用
-LINE_NOTIFY_TOKEN = dev_token
+# LINE_NOTIFY_TOKEN = dev_token
 # 本番用 
-# LINE_NOTIFY_TOKEN = prd_token
+LINE_NOTIFY_TOKEN = prd_token
 
 login_url = 'https://tiget.net/users/sign_in'
 args = sys.argv
@@ -63,15 +63,9 @@ mi = int(data['mi'])
 ss = int(data['ss'])
 mSeconds = int(data['mSeconds'])
 # クレカ決済
-iscardstr = data['iscard']
-iscard = False
-if iscardstr.upper() == 'TRUE':
-    iscard = True
+iscard = data['iscard']
 # コンビニ決済
-isconvstr = data['isconv']
-isconv = False
-if isconvstr.upper() == 'TRUE':
-    isconv = True
+isconv = data['isconv']
 
 
 
