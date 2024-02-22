@@ -55,18 +55,24 @@ firstName = data['firstName']
 lastName = data['lastName']
 home_url = data['home_url']
 array_index = int(data['array_index'])
-yyyy = data['yyyy']
-mm = data['mm']
-dd = data['dd']
-hh = data['hh']
-mi = data['mi']
-ss = data['ss']
-mSeconds = data['mSeconds']
+yyyy = int(data['yyyy'])
+mm = int(data['mm'])
+dd = int(data['dd'])
+hh = int(data['hh'])
+mi = int(data['mi'])
+ss = int(data['ss'])
+mSeconds = int(data['mSeconds'])
 # クレカ決済
 iscardstr = data['iscard']
 iscard = False
 if iscardstr.upper() == 'TRUE':
     iscard = True
+# コンビニ決済
+isconvstr = data['isconv']
+isconv = False
+if isconvstr.upper() == 'TRUE':
+    isconv = True
+
 
 
 #python3.9.6 64bitで実行するとうまくいく
@@ -122,13 +128,27 @@ time.sleep(2)
 driver.get(home_url) 
 time.sleep(3)
 
+
+
 # 指定の時間まで待機
 # LINE通知する
 startDt = datetime.datetime(yyyy,mm,dd,hh,mi,ss,mSeconds)
 print(startDt)
 diff = startDt - datetime.datetime.now()
 def waitprogram():
-    send_line_notify('\n' + 'プログラムを起動しました。' + '\n' + 'ニックネーム：' + nickname + '\n' + '販売開始時刻：' + str(startDt) + '\n' + 'URL：' + home_url)
+    # エラーチェック
+    if iscard is True and isconv is True:
+        send_line_notify('\n' + 'エラーチェック' + '\n' + 'コンビニ決済とクレカ決済が両方Trueのためエラー')
+        sys.exit()
+    type = ''
+    if iscard:
+        type = 'クレカ決済💳'
+    elif isconv:
+        type = 'コンビニ決済🏪'
+    else:
+        type = '当日支払い🙋‍♀️'
+
+    send_line_notify('\n' + 'プログラムを起動しました。' + '\n' + 'ニックネーム：' + nickname  + '\n' + '決済方法：' + type +'\n' + '販売開始時刻：' + str(startDt) + '\n' + 'URL：' + home_url)
     if diff.seconds < 300 or diff.days < 0:
         return
     # 5分前まで待機
@@ -181,6 +201,21 @@ def main():
             send_line_notify('\n' + '処理失敗しました😭手動で取得してください')
             sys.exit()
 
+    # コンビニ決済の場合
+    if isconv:
+        while True:
+            try:
+                radio = driver.find_elements(By.CLASS_NAME,"pay_method-label")
+                if len(radio) > 0 :
+                    # コンビニ決済
+                    radio[1].click()
+                    print('コンビニ決済選択')
+                    break
+                print('コンビニ決済表示前')
+            except:
+                send_line_notify('\n' + '処理失敗しました😭手動で取得してください')
+                sys.exit()
+
     # チケット情報入力画面
     # 推しメン
     while True:
@@ -206,6 +241,23 @@ def main():
         send_line_notify('\n' + '処理失敗しました😭手動で取得してください')
         sys.exit()
 
+    # コンビニ決済の場合
+    if isconv:
+        while True:
+            try:
+                radio = driver.find_elements(By.CLASS_NAME,"cvs-payment-name")
+                if len(radio) > 0 :
+                    # ファミマ
+                    radio[0].click()
+                    # 次へボタン
+                    driver.find_element(By.ID,"ticket_cvs_submit").submit()
+                    print('支払いコンビニ選択し、次へボタンクリック')
+                    break
+                print('支払いコンビニ表示前のためループ')
+            except:
+                send_line_notify('\n' + '処理失敗しました😭手動で取得してください')
+                sys.exit()
+
     # カード決済の場合
     if iscard:
         # クレカ画面で次へボタン
@@ -214,8 +266,8 @@ def main():
                 if len(driver.find_elements(By.CSS_SELECTOR,".btn.button-green.center-button.card-page-btn")) > 0 :
                     # クレカ選択（2枚目に）
                     card = driver.find_elements(By.CSS_SELECTOR,".card-image-box.card-image-box-registed")
-                    card[1].click()
-
+                    # card[1].click()
+                    card[0].click()
                     driver.find_element(By.CSS_SELECTOR,".btn.button-green.center-button.card-page-btn").click()
                     print('クレカ画面次へボタンクリック')
                     break
@@ -223,6 +275,43 @@ def main():
         except:
             send_line_notify('\n' + '処理失敗しました😭手動で取得してください')
             sys.exit()
+
+       
+        count = 0
+        try:
+            while True:
+                submitBtn = driver.find_elements(By.ID,"submitBtn-nonagree")
+                if len(submitBtn) > 0 :
+                    driver.find_element(By.ID,"submitBtn-nonagree").submit()
+                    break
+
+            while True:
+                 # VISA認証画面(表示されない可能性もあり)
+                time.sleep(20)
+                if len(driver.find_elements(By.ID,"password")) > 0 :
+                    driver.find_element(By.ID,"password").send_keys('Aa223036222')
+                    driver.find_element(By.ID,"submitBtn").submit()
+                    break
+
+                # チケット確定している可能性を考慮
+                if len(driver.find_elements(By.ID,"show-modal-number")) > 0:
+                    num = driver.find_element(By.ID,"show-modal-number")
+                    print('ticket Number：' + num.text)
+                    if len(num.text) == 0:
+                        send_line_notify('\n' + '処理失敗しました😭手動で取得してください')
+                        sys.exit()
+                        
+                    send_line_notify('\n' + 'チケット取得完了しました❗️' + '\n' + 'ニックネーム：' + nickname + '\n' + 'チケット番号：' + num.text )
+                    sys.exit()
+                # count = count + 1
+                # print('count：' + str(count))
+                # if count > 30 :
+                #     break
+        except:
+            send_line_notify('\n' + '処理失敗しました😭手動で取得してください')
+            sys.exit()
+        
+        count = 0
             
     # 予約確定
     while True:
