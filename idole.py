@@ -136,7 +136,7 @@ startDt = datetime.datetime(yyyy,mm,dd,hh,mi,ss,mSeconds)
 print(startDt)
 diff = startDt - datetime.datetime.now()
 def waitprogram():
-    # エラーチェック
+    # エラーチェック 
     if iscard is True and isconv is True:
         send_line_notify('\n' + 'エラーチェック' + '\n' + 'コンビニ決済とクレカ決済が両方Trueのためエラー')
         sys.exit()
